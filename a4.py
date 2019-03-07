@@ -8,7 +8,6 @@
 #                 Plaintext is to be given in an binary string of even length,
 #                 The program also requires an amount of rounds for the cipher,
 #                 as well as a key.
-
 import sys
 
 # Cipher function that is used before xor.
@@ -40,6 +39,7 @@ def feistel_cipher(pt, k, r):
 def main():
     plaintext = ""
     round_inputs = []
+    # Get input type
     while (True):
         where_is_plain = input("Is the plaintext given via stdin or file? ")
         if where_is_plain == "file":
@@ -56,27 +56,32 @@ def main():
         else:
             print("Need to select a valid option ('file' or 'stdin')")
 
+    # Even length check
     if (len(plaintext) % 2) != 0:
         print("Please give plaintext of even length")
         sys.exit(0)
 
+    # Get key and rounds
     key = input("Key please: ")
     rounds = input("Amount of rounds please: ")
 
+    # Show user supplied values
     print("")
     print("Plaintext: " + plaintext)
     print("Key: " + key)
     print("Amount of rounds: " + rounds)
     print("")
 
+    # Create function for rounds
     for i in range(int(rounds)):
         round_inputs.append(i + 1)
 
+    # Encrypt
     encrypt_result = feistel_cipher(plaintext, key, round_inputs)
     print("Ciphertext: " + encrypt_result)
 
+    # Decrypt
     round_inputs.reverse()
-
     decrypt_result = feistel_cipher(encrypt_result, key, round_inputs)
     print("Plaintext: " + decrypt_result)
 
