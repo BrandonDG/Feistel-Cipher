@@ -15,15 +15,16 @@ import sys
 def cipher_function(i, k, r):
     return (((2 * r * k)**i) % 15)
 
-# Encrypt plaintext (pt) with the key (k) for a specified set of rounds (r).
-# Encryption is done using the Feistel Cipher.
-def encrypt(pt, k, r):
+# Put the given message through the Feistel cipher process. This function can be
+# used to encrypt or decrypt. Pt is the message, k is the key, and r is the rounds
+# function input.
+def feistel_cipher(pt, k, r):
     leftside, rightside = int(pt[:int(len(pt) / 2)], 2), int(pt[int(len(pt) / 2):], 2)
 
     print("Pre Encrypt = Left side: " + str(leftside) + " -- Right Side: " + str(rightside))
 
-    for i in range(int(r)):
-        xor_value = cipher_function(rightside, int(k), i + 1)
+    for i in range(len(r)):
+        xor_value = cipher_function(rightside, int(k), r[i])
         left_xor = xor_value ^ leftside
         leftside = rightside
         rightside = left_xor
@@ -31,36 +32,14 @@ def encrypt(pt, k, r):
     print("Post Encrypt = Left side: " + str(leftside) + " -- Right Side: " + str(rightside))
 
     format_string = "{:0" + str(len(pt) // 2) + "b}"
-    result = format_string.format(leftside)
-    result += format_string.format(rightside)
+    result = format_string.format(rightside)
+    result += format_string.format(leftside)
     return result
-
-# Decrypt ciphertext (pt) with the key (k) for a specified set of rounds (r).
-# Decryption is done using the Feistel Cipher.
-def decrypt(pt, k, r):
-    leftside, rightside = int(pt[:int(len(pt) / 2)], 2), int(pt[int(len(pt) / 2):], 2)
-
-    print("Pre Decrypt = Left side: " + str(leftside) + " -- Right Side: " + str(rightside))
-
-    i = int(r)
-    while i > 0:
-        xor_value = cipher_function(leftside, int(k), i)
-        right_xor = xor_value ^ rightside
-        rightside = leftside
-        leftside = right_xor
-        i -= 1
-
-    print("Post Decrypt = Left side: " + str(leftside) + " -- Right Side: " + str(rightside))
-
-    format_string = "{:0" + str(len(pt) // 2) + "b}"
-    result = format_string.format(leftside)
-    result += format_string.format(rightside)
-    return result
-
 
 # Main
 def main():
     plaintext = ""
+    round_inputs = []
     while (True):
         where_is_plain = input("Is the plaintext given via stdin or file? ")
         if where_is_plain == "file":
@@ -90,10 +69,15 @@ def main():
     print("Amount of rounds: " + rounds)
     print("")
 
-    encrypt_result = encrypt(plaintext, key, rounds)
+    for i in range(int(rounds)):
+        round_inputs.append(i + 1)
+
+    encrypt_result = feistel_cipher(plaintext, key, round_inputs)
     print("Ciphertext: " + encrypt_result)
 
-    decrypt_result = decrypt(encrypt_result, key, rounds)
+    round_inputs.reverse()
+
+    decrypt_result = feistel_cipher(encrypt_result, key, round_inputs)
     print("Plaintext: " + decrypt_result)
 
 
